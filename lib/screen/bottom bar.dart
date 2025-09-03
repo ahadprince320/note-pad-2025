@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:note_book/controller/note_controller.dart';
+import 'package:note_book/model/note_model.dart';
 
 import 'home_screen.dart';
 import 'note_screen.dart';
@@ -24,8 +27,7 @@ class _bottomNavigationState extends State<bottomNavigation> {
         mini: false,
         backgroundColor: Colors.blueAccent,
         onPressed: () {
-       _alertDialog();
-
+          _alertDialog();
         },
         child: Icon(Icons.add, color: Colors.white),
       ),
@@ -49,12 +51,16 @@ class _bottomNavigationState extends State<bottomNavigation> {
         ],
       ),
     );
-    
   }
+
   _alertDialog() {
     showDialog(
       context: context,
       builder: (context) {
+        final NoteController noteController = Get.put(NoteController());
+        final TextEditingController titleController = TextEditingController();
+        final TextEditingController contentController = TextEditingController();
+
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -81,11 +87,10 @@ class _bottomNavigationState extends State<bottomNavigation> {
                   color: Colors.white,
                 ),
                 TextFormField(
+                  controller: titleController,
                   decoration: InputDecoration(
                     hintText: 'Title',
-                    hintStyle: TextStyle(
-                      color: Colors.blueAccent,
-                    ),
+                    hintStyle: TextStyle(color: Colors.blueAccent),
                     fillColor: Colors.white,
                     filled: true,
                     border: OutlineInputBorder(
@@ -94,22 +99,27 @@ class _bottomNavigationState extends State<bottomNavigation> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.blueAccent, width: 1), // চাইলে রঙ দিতে পারো
+                      borderSide: BorderSide(
+                        color: Colors.blueAccent,
+                        width: 1,
+                      ), // চাইলে রঙ দিতে পারো
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.blue, width: 2), // focus হলে আলাদা style
+                      borderSide: BorderSide(
+                        color: Colors.blue,
+                        width: 2,
+                      ), // focus হলে আলাদা style
                     ),
                   ),
                 ),
 
-                const SizedBox(height: 10,),
+                const SizedBox(height: 10),
                 TextFormField(
+                  controller: contentController,
                   decoration: InputDecoration(
                     hintText: 'Subtitele',
-                    hintStyle: TextStyle(
-                      color: Colors.blueAccent,
-                    ),
+                    hintStyle: TextStyle(color: Colors.blueAccent),
                     fillColor: Colors.white,
                     filled: true,
                     border: OutlineInputBorder(
@@ -118,11 +128,17 @@ class _bottomNavigationState extends State<bottomNavigation> {
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.blueAccent, width: 1), // চাইলে রঙ দিতে পারো
+                      borderSide: BorderSide(
+                        color: Colors.blueAccent,
+                        width: 1,
+                      ), // চাইলে রঙ দিতে পারো
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(color: Colors.blue, width: 2), // focus হলে আলাদা style
+                      borderSide: BorderSide(
+                        color: Colors.blue,
+                        width: 2,
+                      ), // focus হলে আলাদা style
                     ),
                   ),
                 ),
@@ -152,8 +168,16 @@ class _bottomNavigationState extends State<bottomNavigation> {
                         ),
                       ),
                       onPressed: () {
-                        // Action
-                        Navigator.pop(context);
+                        final String formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(DateTime.now());
+                        noteController.addNote(
+
+                          NoteModel(
+                            titleController.text,
+                            contentController.text,
+                            formattedDate,
+                          ),
+                        );
+                        Get.back();
                       },
                       child: const Text(
                         'Confirm',
@@ -161,7 +185,7 @@ class _bottomNavigationState extends State<bottomNavigation> {
                       ),
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),
@@ -169,6 +193,4 @@ class _bottomNavigationState extends State<bottomNavigation> {
       },
     );
   }
-
-
 }

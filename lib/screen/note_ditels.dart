@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controller/note_controller.dart';
 
 class note_screen extends StatefulWidget {
   const note_screen({super.key});
@@ -10,29 +12,32 @@ class note_screen extends StatefulWidget {
 class _note_screenState extends State<note_screen> {
   @override
   Widget build(BuildContext context) {
-    final arg=ModalRoute.of(context)!.settings.arguments.toString();
-    return SafeArea(
-      child: Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.only(top: 58.0,left: 20,),
-        
-            child: Container(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Date: 12/12/2025'),
-                   SizedBox(height: 50,),
-                   Text(arg,style: TextStyle(fontSize: 25,color: Colors.black,fontWeight: FontWeight.bold),),
-                  SizedBox(height: 150,),
-                   Text('Write Some thing About you this subtitele'),
-      
-                ],
-              ),
+    final args = ModalRoute.of(context)!.settings.arguments as Map;
+      return SafeArea(
+        child: Scaffold(
+          appBar: AppBar(title: Text("Note Details")),
+          body: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Date: ${args['date']}"),
+                SizedBox(height: 20),
+                Text(
+                  args['title'],
+                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 20),
+                Text(
+                  args['content'],
+                  style: TextStyle(fontSize: 18, color: Colors.grey[700]),
+                ),
+              ],
             ),
           ),
-        
-      ),
-    );
+        ),
+      );
+    }
+
   }
-}
+
