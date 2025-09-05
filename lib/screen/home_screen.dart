@@ -187,9 +187,9 @@ class _home_screenState extends State<home_screen> {
                         noteController.updateNote(
                           index,
                           NoteModel(
-                            titleController.text,
-                            contentController.text,
-                            formattedDate,
+                            title: titleController.text,
+                            content: contentController.text,
+                            date: formattedDate,
                           ),
                         );
                         Get.back();

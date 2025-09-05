@@ -7,15 +7,21 @@ import 'package:note_book/model/note_model.dart';
 import 'home_screen.dart';
 import 'note_screen.dart';
 
-class bottomNavigation extends StatefulWidget {
-  const bottomNavigation({super.key});
+class BottomNavigation extends StatefulWidget {
+  const BottomNavigation({super.key});
 
   @override
-  State<bottomNavigation> createState() => _bottomNavigationState();
+  State<BottomNavigation> createState() => _BottomNavigationState();
 }
 
-class _bottomNavigationState extends State<bottomNavigation> {
-  final List<Widget> _screens = [home_screen(), note_screen()];
+class _BottomNavigationState extends State<BottomNavigation> {
+  final NoteController noteController = Get.put(NoteController());
+
+  final List<Widget> _screens = const [
+    home_screen(),
+    note_screen(),
+  ];
+
   int _currentIndex = 0;
 
   @override
@@ -24,43 +30,40 @@ class _bottomNavigationState extends State<bottomNavigation> {
       body: _screens[_currentIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
-        mini: false,
         backgroundColor: Colors.blueAccent,
-        onPressed: () {
-          _alertDialog();
-        },
-        child: Icon(Icons.add, color: Colors.white),
+        onPressed: () => _showAddNoteDialog(),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.black,
+        selectedItemColor: Colors.blueAccent,
         unselectedItemColor: Colors.black,
         currentIndex: _currentIndex,
         onTap: (value) {
-          _currentIndex = value;
-          setState(() {});
+          setState(() {
+            _currentIndex = value;
+          });
         },
-        items: [
+        items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, color: Colors.black),
+            icon: Icon(Icons.home),
             label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.note_add_outlined),
-            label: 'note',
+            label: 'Note',
           ),
         ],
       ),
     );
   }
 
-  _alertDialog() {
+  void _showAddNoteDialog() {
+    final TextEditingController titleController = TextEditingController();
+    final TextEditingController contentController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) {
-        final NoteController noteController = Get.put(NoteController());
-        final TextEditingController titleController = TextEditingController();
-        final TextEditingController contentController = TextEditingController();
-
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -82,68 +85,22 @@ class _bottomNavigationState extends State<bottomNavigation> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 const Icon(
-                  Icons.warning_amber_rounded,
+                  Icons.note_add,
                   size: 60,
                   color: Colors.white,
                 ),
-                TextFormField(
-                  controller: titleController,
-                  decoration: InputDecoration(
-                    hintText: 'Title',
-                    hintStyle: TextStyle(color: Colors.blueAccent),
-                    fillColor: Colors.white,
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15), // border radius
-                      borderSide: BorderSide.none, // border line hide করবে
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(
-                        color: Colors.blueAccent,
-                        width: 1,
-                      ), // চাইলে রঙ দিতে পারো
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(
-                        color: Colors.blue,
-                        width: 2,
-                      ), // focus হলে আলাদা style
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 15),
+
+                // Title Input
+                _buildTextField(titleController, "Title"),
 
                 const SizedBox(height: 10),
-                TextFormField(
-                  controller: contentController,
-                  decoration: InputDecoration(
-                    hintText: 'Subtitele',
-                    hintStyle: TextStyle(color: Colors.blueAccent),
-                    fillColor: Colors.white,
-                    filled: true,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15), // border radius
-                      borderSide: BorderSide.none, // border line hide করবে
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(
-                        color: Colors.blueAccent,
-                        width: 1,
-                      ), // চাইলে রঙ দিতে পারো
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15),
-                      borderSide: BorderSide(
-                        color: Colors.blue,
-                        width: 2,
-                      ), // focus হলে আলাদা style
-                    ),
-                  ),
-                ),
+
+                // Content Input
+                _buildTextField(contentController, "Subtitle"),
 
                 const SizedBox(height: 20),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
@@ -168,16 +125,27 @@ class _bottomNavigationState extends State<bottomNavigation> {
                         ),
                       ),
                       onPressed: () {
-                        final String formattedDate = DateFormat('dd/MM/yyyy hh:mm a').format(DateTime.now());
-                        noteController.addNote(
+                        final String formattedDate =
+                        DateFormat('dd/MM/yyyy hh:mm a')
+                            .format(DateTime.now());
 
-                          NoteModel(
-                            titleController.text,
-                            contentController.text,
-                            formattedDate,
-                          ),
-                        );
-                        Get.back();
+                        if (titleController.text.isNotEmpty &&
+                            contentController.text.isNotEmpty) {
+                          noteController.addNote(
+                            NoteModel(
+                              title: titleController.text,
+                              content: contentController.text,
+                              date: formattedDate,
+                            ),
+                          );
+                          Get.back();
+                        } else {
+                          Get.snackbar(
+                            "Input Error",
+                            "Title and Content cannot be empty.",
+                            snackPosition: SnackPosition.BOTTOM,
+                          );
+                        }
                       },
                       child: const Text(
                         'Confirm',
@@ -191,6 +159,36 @@ class _bottomNavigationState extends State<bottomNavigation> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildTextField(TextEditingController controller, String hint) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        hintText: hint,
+        hintStyle: const TextStyle(color: Colors.blueAccent),
+        fillColor: Colors.white,
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: BorderSide.none,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(
+            color: Colors.blueAccent,
+            width: 1,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(15),
+          borderSide: const BorderSide(
+            color: Colors.blue,
+            width: 2,
+          ),
+        ),
+      ),
     );
   }
 }
